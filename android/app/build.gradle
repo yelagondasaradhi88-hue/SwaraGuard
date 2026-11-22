@@ -1,0 +1,109 @@
+plugin {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
+
+android {
+    namespace 'com.swaraguard.app'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.swaraguard.app"
+        minSdk 29
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+
+        // Enable Java 8 for coroutines
+        compileOptions {
+            sourceCompatibility JavaVersion.VERSION_1_8
+            targetCompatibility JavaVersion.VERSION_1_8
+        }
+        kotlinOptions {
+            jvmTarget = '1.8'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            // Allow mock data in debug
+            buildConfigField "boolean", "ENABLE_MOCK_BANK", "true"
+        }
+    }
+
+    // Split APKs by ABI for smaller downloads
+    bundle {
+        language {
+            enableSplit = true
+        }
+        density {
+            enableSplit = true
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    buildFeatures {
+        viewBinding true
+    }
+}
+
+dependencies {
+    // Core AndroidX
+    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'com.google.android.material:material:1.12.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.0'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.8.3'
+    implementation 'androidx.activity:activity-ktx:1.9.2'
+
+    // Camera and audio for MediaRecorder
+    implementation 'androidx.camera:camera-core:1.3.4'
+
+    // Retrofit for API calls
+    implementation 'com.squareup.retrofit2:retrofit:2.11.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.11.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+
+    // Coroutines
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1'
+
+    // ViewModel & LiveData
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.4'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.8.4'
+
+    // Audio processing
+    implementation 'com.greggateg.audio:audiocutter:1.0.4'
+
+    // WebRTC for audio (alternative approach)
+    implementation 'org.webrtc:google-webrtc:1.0.32007'
+
+    // WorkManager for background processing
+    implementation 'androidx.work:work-runtime-ktx:2.9.1'
+
+    // DataStore for preferences
+    implementation 'androidx.datastore:datastore-preferences:1.1.1'
+
+    // Testing
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
+}
+    applicationVariants.all {
+        variant ->
+        variant.outputs CompletableFuture.supplyAsync {
+            def apkFile = variant.outputs[0].outputFile
+            def newApkFile = new File(apkFile.parent, apkFile.name.replace("app", "swaraguard"))
+            if (newApkFile.exists()) {
+                newApkFile.delete()
+            }
+            variant.outputs[0].outputFileName = newApkFile.name
+        }
+    }

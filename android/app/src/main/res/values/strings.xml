@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App name -->
+    <string name="app_name">SwaraGuard</string>
+
+    <!-- MainActivity -->
+    <string name="tv_app_name">SwaraGuard</string>
+    <string name="tv_description">AI-powered scam call protection</string>
+    <string name="btn_start_analysis">Start Call Analysis</string>
+    <string name="btn_demo_mode">Demo Mode</string>
+    <string name="btn_settings">Settings</string>
+
+    <!-- DemoModeActivity -->
+    <string name="demo_mode_title">Demo Mode</string>
+    <string name="demo_mode_description">Analyze a pre-recorded scam call recording</string>
+    <string name="btn_select_sample">Play & Analyze Sample</string>
+    <string name="tv_transcript">Transcript</string>
+    <string name="tv_risk_score">Risk Score</string>
+    <string name="tv_verdict">Verdict</string>
+    <string name="tv_scam_tactics">Scam Tactics</string>
+    <string name="tv_voice_indicators">Voice Indicators</string>
+    <string name="tv_analysis_status">Analyzing...</string>
+
+    <!-- ProtectionFlowActivity -->
+    <string name="protection_title">Protection Activated</string>
+    <string name="btn_call_1930">Call 1930</string>
+    <string name="btn_freeze_account">Freeze Account</string>
+    <string name="btn_open_bank_apps">Open Bank App</string>
+    <string name="btn_send_sms">Send Freeze SMS</string>
+    <string name="btn_open_dashboard">View Dashboard</string>
+
+    <!-- Permissions -->
+    <string name="permission_rationale_title">Permissions Required</string>
+    <string name="permission_rationale_message">SwaraGuard needs these permissions to effectively protect you from scam calls. You can change these in Settings.</string>
+
+    <!-- Risk Levels -->
+    <string name="risk_level_low">LOW</string>
+    <string name="risk_level_medium">MEDIUM</string>
+    <string name="risk_level_high">HIGH</string>
+
+    <!-- Messages -->
+    <string name="permission_granted">All permissions granted</string>
+    <string name="permission_denied">Some permissions denied. App may not work correctly.</string>
+    <string name="analysis_complete">Analysis complete: %s</string>
+    <string name="status_safe">Call appears safe</string>
+    <string name="status_suspicious">Suspicious activity detected</string>
+    <string name="status_high_risk">HIGH RISK SCAM DETECTED</string>
+</resources>

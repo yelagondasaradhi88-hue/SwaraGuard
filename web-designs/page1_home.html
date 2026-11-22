@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwaraGuard - Intelligent Scam Detection</title>
+    <link rel="stylesheet" href="swaraguard.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">🛡️</div>
+                <div class="logo-text">
+                    <h1>SwaraGuard</h1>
+                    <p>Intelligent Scam Detection</p>
+                </div>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="page1_home.html" class="active">Home</a></li>
+                    <li><a href="page2_analysis.html">Analysis</a></li>
+                    <li><a href="page3_protection.html">Protection</a></li>
+                    <li><a href="live_call_guard.html">Live Call Guard</a></li>
+                </ul>
+            </nav>
+            <div class="user-avatar" id="userAvatar">
+                <div class="avatar" id="userInitials">U</div>
+                <div class="user-name" id="userName">User</div>
+            </div>
+        </header>
+
+        <section class="hero">
+            <div class="hero-tag">🛡️ AI-Powered Voice Scam & Deepfake Detection</div>
+            <h2>Protect Your Voice,<br>Protect Your Money</h2>
+            <p>SwaraGuard AI analyzes incoming calls in real-time to detect synthetic voices, scam tactics, and prevent financial fraud before it's too late.</p>
+            <div class="btn-group justify-center">
+                <a href="page2_analysis.html" class="btn btn-accent">Start Analyzing</a>
+                <a href="live_call_guard.html" class="btn btn-ghost">Try Live Simulator</a>
+            </div>
+        </section>
+
+        <section class="grid-3">
+            <div class="feature-card" onclick="window.location.href='page2_analysis.html'">
+                <div class="feature-icon analysis">🔊</div>
+                <h3>Voice Analysis</h3>
+                <p>Detect deepfake voices, TTS-generated audio, and robotic speech patterns using advanced acoustic analysis.</p>
+            </div>
+            <div class="feature-card" onclick="window.location.href='page2_analysis.html'">
+                <div class="feature-icon scam">🚨</div>
+                <h3>Scam Detection</h3>
+                <p>Multi-lingual scam pattern recognition across English, Hindi, and Telugu with OTP and phishing detection.</p>
+            </div>
+            <div class="feature-card" onclick="window.location.href='page3_protection.html'">
+                <div class="feature-icon protection">🛡️</div>
+                <h3>Bank Protection</h3>
+                <p>Instant emergency freeze simulation with guardian verification and one-tap safety actions.</p>
+            </div>
+        </section>
+
+        <div class="cta-card">
+            <h3>Ready to Protect Your Calls?</h3>
+            <p>Join thousands of users already protected by SwaraGuard AI.</p>
+            <a href="page3_protection.html" class="btn btn-danger">Emergency Freeze Panel</a>
+        </div>
+
+        <footer>
+            <p>SwaraGuard — AI & Generative AI Hackathon Prototype | Team SonicSentinels</p>
+        </footer>
+    </div>
+
+    <script>
+        function showUserMenu() {
+            const user = getUserFromStorage();
+            if (user && user.name) {
+                const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+                document.getElementById('userInitials').textContent = initials;
+                document.getElementById('userName').textContent = user.name.split(' ')[0];
+            }
+        }
+
+        function getUserFromStorage() {
+            try {
+                const stored = localStorage.getItem('swaraguard_user');
+                return stored ? JSON.parse(stored) : null;
+            } catch (e) { return null; }
+        }
+
+        document.addEventListener('DOMContentLoaded', showUserMenu);
+    </script>
+</body>
+</html>

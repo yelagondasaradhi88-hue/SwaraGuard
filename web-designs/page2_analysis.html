@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwaraGuard - Call Analysis Dashboard</title>
+    <link rel="stylesheet" href="swaraguard.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">🛡️</div>
+                <div class="logo-text">
+                    <h1>SwaraGuard</h1>
+                    <p>Call Analysis Dashboard</p>
+                </div>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="page1_home.html">Home</a></li>
+                    <li><a href="page2_analysis.html" class="active">Analysis</a></li>
+                    <li><a href="page3_protection.html">Protection</a></li>
+                    <li><a href="live_call_guard.html">Live Call Guard</a></li>
+                </ul>
+            </nav>
+            <div class="user-avatar" id="userAvatar">
+                <div class="avatar" id="userInitials">U</div>
+                <div class="user-name" id="userName">User</div>
+            </div>
+        </header>
+
+        <a href="page1_home.html" class="back-btn">← Back to Home</a>
+        <h2 class="page-title">Call Analysis Dashboard</h2>
+
+        <!-- Threat alert: only appears on a genuine high-risk result -->
+        <div class="threat-alert" id="threatAlert">
+            <div class="threat-title">⚠️ <span id="threatTitle">HIGH-RISK SCAM DETECTED</span></div>
+            <div class="threat-message"><span id="threatReason">Scam tactics detected in this call.</span></div>
+            <button class="disconnect-btn" id="disconnectBtn">📞 Block &amp; Disconnect Call</button>
+        </div>
+
+        <!-- Upload card -->
+        <div class="card">
+            <div class="card-head">
+                <h2>Upload Audio for Analysis</h2>
+                <span class="badge badge-shield" id="backendBadge">Checking backend…</span>
+            </div>
+
+            <div class="upload-box" id="uploadBox" role="button" tabindex="0">
+                <span class="upload-icon">🎤</span>
+                <h3>Select or drop an audio file</h3>
+                <p class="upload-text">Supports .m4a, .mp3, .wav, .ogg &nbsp;•&nbsp; Max 50 MB</p>
+                <button class="btn btn-accent" id="chooseFileBtn" type="button">Choose File → Analyze</button>
+                <input type="file" id="fileInput" class="file-input" accept="audio/*">
+            </div>
+
+            <div class="presets-section">
+                <span class="preset-label">Quick test scenarios</span>
+                <button class="preset-btn" data-preset="bank_scam">🏦 Bank Scam</button>
+                <button class="preset-btn" data-preset="digital_arrest">👮 Digital Arrest</button>
+                <button class="preset-btn" data-preset="otp_upi">💳 OTP / UPI PIN</button>
+                <button class="preset-btn" data-preset="normal">✅ Safe Conversation</button>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div class="card loading-panel" id="loadingPanel">
+            <div class="spinner"></div>
+            <p id="loadingText">Analyzing audio for deepfake artifacts and scam tactics…</p>
+        </div>
+
+        <!-- Results -->
+        <div class="card result-card" id="resultCard">
+            <div class="card-head">
+                <h2>Analysis Results</h2>
+                <span class="badge badge-shield" id="sourceBadge">Demo Data</span>
+            </div>
+
+            <div class="risk-display">
+                <div class="risk-ring" id="riskRing">
+                    <div class="risk-value" id="riskValue">0</div>
+                    <div class="risk-level" id="riskLevel">RISK</div>
+                </div>
+                <div class="risk-summary">
+                    <span class="risk-badge badge-low" id="riskBadge">Low Risk</span>
+                    <p class="risk-description" id="riskDescription">Analysis pending…</p>
+                </div>
+            </div>
+
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value" id="transcriptLen">0</div>
+                    <div class="metric-label">Transcript Chars</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="indicatorsCount">0</div>
+                    <div class="metric-label">Threat Signals</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="deepfakeScore">0%</div>
+                    <div class="metric-label">Deepfake Prob.</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="langValue">—</div>
+                    <div class="metric-label">Language</div>
+                </div>
+            </div>
+
+            <div class="section-label">Call Transcript</div>
+            <div class="transcript-box">
+                <p id="transcriptText">Awaiting analysis…</p>
+            </div>
+
+            <div class="section-label">Threat Indicators</div>
+            <div id="tagsContainer">
+                <span class="indicator-tag safe">No threats detected</span>
+            </div>
+
+            <div class="advice-box" style="margin-top:18px;">
+                <div class="advice-title">💡 Protection Recommendation</div>
+                <p id="adviceText">Upload an audio file to receive security recommendations.</p>
+            </div>
+
+            <div class="result-actions">
+                <a href="page3_protection.html" class="btn btn-danger">🛡️ Open Protection Panel</a>
+                <a href="live_call_guard.html" class="btn btn-ghost">🎙️ Live Call Guard</a>
+                <button class="btn btn-ghost" id="clearResultBtn" type="button">Clear</button>
+            </div>
+        </div>
+
+        <footer>
+            <p>SwaraGuard — AI & Generative AI Hackathon Prototype | Team SonicSentinels</p>
+            <p style="font-size: 0.8rem; margin-top: 6px; opacity: 0.7;">
+                Demo mode: results shown here are simulated unless the FastAPI backend at :8000 is running.
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        /* Backend base URL — matches the FastAPI server configured in launch.json */
+        const API_BASE = 'http://localhost:8000';
+
+        /* ---------- User session ---------- */
+        function getUserFromStorage() {
+            try {
+                const stored = localStorage.getItem('swaraguard_user');
+                return stored ? JSON.parse(stored) : null;
+            } catch (e) { return null; }
+        }
+
+        function showUserMenu() {
+            const user = getUserFromStorage();
+            if (user && user.name) {
+                const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+                document.getElementById('userInitials').textContent = initials;
+                document.getElementById('userName').textContent = user.name.split(' ')[0];
+            }
+        }
+
+        /* ---------- Backend health check ---------- */
+        async function checkBackend() {
+            const badge = document.getElementById('backendBadge');
+            try {
+                const res = await fetch(`${API_BASE}/api/health`, { method: 'GET' });
+                if (res.ok) {
+                    badge.textContent = 'Backend Online';
+                    badge.className = 'badge badge-safe';
+                    return true;
+                }
+            } catch (_) { /* backend not running */ }
+            badge.textContent = 'Demo Mode';
+            badge.className = 'badge badge-warning';
+            return false;
+        }
+
+        /* ---------- Demo scenarios ---------- */
+        const DEMO_SCENARIOS = {
+            bank_scam: {
+                transcript: "Hello sir, I am calling from State Bank KYC department. Your bank account will be blocked in 10 minutes. Please share the six-digit OTP sent to your mobile number immediately.",
+                language_detected: "English",
+                risk_score: 95,
+                verdict: "HIGH_RISK_SCAM",
+                deepfake_voice_indicators: ["Robotic cadence", "Unnatural pauses", "Monotone delivery"],
+                scam_tactics_detected: ["OTP request", "10-minute urgency", "Bank impersonation"],
+                sensitive_info_leaked: false,
+                leaked_items: ["None"],
+                user_advice: "Disconnect immediately. Real bank officials never ask for your OTP over a phone call."
+            },
+            digital_arrest: {
+                transcript: "This is Officer Sharma from the Cyber Crime branch. We have evidence of illegal transactions from your account. You have 30 seconds to transfer 50,000 rupees to prevent your arrest.",
+                language_detected: "Hinglish",
+                risk_score: 92,
+                verdict: "HIGH_RISK_SCAM",
+                deepfake_voice_indicators: ["Synthetic speech pattern", "Overly formal tone"],
+                scam_tactics_detected: ["Threat of arrest", "Urgent money transfer", "Authority impersonation"],
+                sensitive_info_leaked: false,
+                leaked_items: ["None"],
+                user_advice: "This is a digital arrest scam. Do not transfer any money. Call 1930 immediately."
+            },
+            otp_upi: {
+                transcript: "Congratulations, your electricity bill cashback of 4,500 rupees is ready. Open your UPI app, tap Approve, and enter your 4-digit UPI PIN to receive the money.",
+                language_detected: "English",
+                risk_score: 90,
+                verdict: "HIGH_RISK_SCAM",
+                deepfake_voice_indicators: ["TTS-generated voice"],
+                scam_tactics_detected: ["Fake cashback lure", "UPI PIN request"],
+                sensitive_info_leaked: false,
+                leaked_items: ["None"],
+                user_advice: "Never enter your UPI PIN to receive money. Receiving money never requires a PIN."
+            },
+            normal: {
+                transcript: "Hey, are you coming to the lab at 10 today, or should we grab lunch first near the main gate?",
+                language_detected: "English",
+                risk_score: 8,
+                verdict: "SAFE",
+                deepfake_voice_indicators: ["None detected"],
+                scam_tactics_detected: ["None"],
+                sensitive_info_leaked: false,
+                leaked_items: ["None"],
+                user_advice: "No scam or synthetic voice indicators detected. Safe conversation."
+            }
+        };
+
+        /* ---------- Results rendering ---------- */
+        function setRing(score) {
+            const ring = document.getElementById('riskRing');
+            const color = score >= 80 ? 'var(--error)' : score >= 40 ? 'var(--warning)' : 'var(--emerald)';
+            const deg = Math.round((score / 100) * 360);
+            ring.style.background =
+                `conic-gradient(${color} 0deg, ${color} ${deg}deg, rgba(148,163,184,0.15) ${deg}deg 360deg)`;
+            ring.style.boxShadow = `0 0 32px ${score >= 80 ? 'rgba(239,68,68,0.3)' : score >= 40 ? 'rgba(245,158,11,0.25)' : 'rgba(16,185,129,0.25)'}`;
+        }
+
+        function renderResult(data, source) {
+            const score = Math.max(0, Math.min(100, Math.round(data.risk_score || 0)));
+            const verdict = (data.verdict || '').toUpperCase();
+
+            const card = document.getElementById('resultCard');
+            card.classList.add('visible');
+
+            document.getElementById('sourceBadge').textContent = source || 'Demo Data';
+
+            document.getElementById('riskValue').textContent = score;
+            setRing(score);
+
+            const badge = document.getElementById('riskBadge');
+            let levelText, levelClass, levelWord;
+            if (score >= 80) {
+                levelWord = 'HIGH'; levelText = 'High Risk'; levelClass = 'badge-high';
+            } else if (score >= 40) {
+                levelWord = 'MED'; levelText = 'Suspicious'; levelClass = 'badge-medium';
+            } else {
+                levelWord = 'LOW'; levelText = 'Safe'; levelClass = 'badge-low';
+            }
+            document.getElementById('riskLevel').textContent = levelWord;
+            badge.className = 'risk-badge ' + levelClass;
+            badge.textContent = levelText;
+
+            document.getElementById('riskDescription').textContent =
+                score >= 80 ? 'High-risk scam call detected — take immediate action.' :
+                score >= 40 ? 'Moderate risk — suspicious signals detected, proceed with caution.' :
+                'Low risk — no scam or deepfake indicators found.';
+
+            const transcript = data.transcript || '';
+            document.getElementById('transcriptLen').textContent = transcript.length;
+            document.getElementById('transcriptText').textContent = transcript || 'No speech detected.';
+
+            const deepfake = data.deepfake_voice_indicators || [];
+            const tactics = data.scam_tactics_detected || [];
+            const isNone = arr => !arr.length || ['None detected', 'None'].includes(arr[0]);
+
+            document.getElementById('indicatorsCount').textContent =
+                isNone(deepfake) && isNone(tactics) ? 0 : deepfake.length + tactics.length;
+
+            document.getElementById('deepfakeScore').textContent = isNone(deepfake) ? '0%' : score + '%';
+            document.getElementById('langValue').textContent = data.language_detected || '—';
+
+            const tagsContainer = document.getElementById('tagsContainer');
+            if (isNone(deepfake) && isNone(tactics)) {
+                tagsContainer.innerHTML = '<span class="indicator-tag safe">No threats detected</span>';
+            } else {
+                const all = [...(isNone(deepfake) ? [] : deepfake), ...(isNone(tactics) ? [] : tactics)];
+                tagsContainer.innerHTML = all.map(t => `<span class="indicator-tag">${t}</span>`).join('');
+            }
+
+            document.getElementById('adviceText').textContent =
+                data.user_advice || 'No recommendation available.';
+
+            const alertEl = document.getElementById('threatAlert');
+            const disconnectBtn = document.getElementById('disconnectBtn');
+            if (score >= 80) {
+                document.getElementById('threatReason').textContent =
+                    (tactics.filter(t => t !== 'None').join(', ') || 'High-risk scam patterns') +
+                    ' detected on this call. SwaraGuard recommends blocking this caller.';
+                alertEl.classList.add('visible');
+                disconnectBtn.disabled = false;
+                disconnectBtn.textContent = '📞 Block & Disconnect Call';
+            } else {
+                alertEl.classList.remove('visible');
+            }
+
+            card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        /* ---------- Preset runner with simulated analysis ---------- */
+        async function runPreset(key) {
+            hideAlert();
+            const data = DEMO_SCENARIOS[key] || DEMO_SCENARIOS.normal;
+            showLoading('Analyzing audio for deepfake artifacts and scam tactics…');
+            await new Promise(r => setTimeout(r, 1100));
+            hideLoading();
+            renderResult(data, 'Demo Data');
+        }
+
+        /* ---------- Real upload via backend ---------- */
+        async function analyzeFile(file) {
+            hideAlert();
+            showLoading(`Analyzing "${file.name}"…`);
+
+            try {
+                const form = new FormData();
+                form.append('file', file);
+                const res = await fetch(`${API_BASE}/api/analyze-audio`, {
+                    method: 'POST',
+                    body: form
+                });
+
+                if (!res.ok) {
+                    const detail = await res.text().catch(() => '');
+                    throw new Error(`Backend returned ${res.status}. ${detail.slice(0, 160)}`);
+                }
+
+                const data = await res.json();
+                hideLoading();
+                renderResult(normalizeBackend(data), 'Live Backend');
+            } catch (err) {
+                hideLoading();
+                showBackendFallback(err.message);
+            }
+        }
+
+        /* Map backend VoiceAnalysisResponse fields to what renderResult expects */
+        function normalizeBackend(d) {
+            return {
+                transcript: d.transcript || d.summary || '',
+                language_detected: d.language_detected || d.language || '—',
+                risk_score: typeof d.risk_score === 'number' ? d.risk_score : (d.riskScore || 0),
+                verdict: d.verdict || (d.risk_score >= 80 ? 'HIGH_RISK_SCAM' : d.risk_score >= 40 ? 'SUSPICIOUS' : 'SAFE'),
+                deepfake_voice_indicators: d.deepfake_voice_indicators || d.deepfake_indicators || [],
+                scam_tactics_detected: d.scam_tactics_detected || d.scam_indicators || [],
+                sensitive_info_leaked: !!d.sensitive_info_leaked,
+                leaked_items: d.leaked_items || [],
+                user_advice: d.user_advice || d.recommendation || 'Review the detected indicators carefully.'
+            };
+        }
+
+        function showBackendFallback(message) {
+            const card = document.getElementById('resultCard');
+            card.classList.add('visible');
+            document.getElementById('sourceBadge').textContent = 'Backend Unavailable';
+            document.getElementById('sourceBadge').className = 'badge badge-warning';
+            document.getElementById('riskDescription').textContent =
+                'Could not reach the analysis backend. ' + message;
+            document.getElementById('adviceText').textContent =
+                'Make sure the FastAPI server is running on port 8000, or use a Quick Test Scenario above to see demo results.';
+            card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        /* ---------- UI helpers ---------- */
+        function showLoading(text) {
+            document.getElementById('loadingText').textContent = text;
+            document.getElementById('loadingPanel').classList.add('visible');
+            document.getElementById('resultCard').classList.remove('visible');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingPanel').classList.remove('visible');
+        }
+
+        function hideAlert() {
+            document.getElementById('threatAlert').classList.remove('visible');
+        }
+
+        /* ---------- Wiring ---------- */
+        const uploadBox = document.getElementById('uploadBox');
+        const fileInput = document.getElementById('fileInput');
+
+        uploadBox.addEventListener('click', () => fileInput.click());
+        uploadBox.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); }
+        });
+
+        ['dragover', 'dragenter'].forEach(ev =>
+            uploadBox.addEventListener(ev, e => { e.preventDefault(); uploadBox.classList.add('dragover'); })
+        );
+        ['dragleave', 'drop'].forEach(ev =>
+            uploadBox.addEventListener(ev, e => { e.preventDefault(); uploadBox.classList.remove('dragover'); })
+        );
+        uploadBox.addEventListener('drop', e => {
+            const file = e.dataTransfer.files && e.dataTransfer.files[0];
+            if (file) analyzeFile(file);
+        });
+
+        fileInput.addEventListener('change', function () {
+            if (this.files && this.files[0]) analyzeFile(this.files[0]);
+        });
+
+        document.querySelectorAll('.preset-btn').forEach(btn =>
+            btn.addEventListener('click', () => runPreset(btn.dataset.preset))
+        );
+
+        document.getElementById('clearResultBtn').addEventListener('click', () => {
+            document.getElementById('resultCard').classList.remove('visible');
+            hideAlert();
+            fileInput.value = '';
+        });
+
+        document.getElementById('disconnectBtn').addEventListener('click', function () {
+            this.disabled = true;
+            this.textContent = '📞 CALL TERMINATED';
+            hideAlert();
+            setTimeout(() => window.location.href = 'page3_protection.html', 700);
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            showUserMenu();
+            checkBackend();
+        });
+    </script>
+</body>
+</html>

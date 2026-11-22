@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwaraGuard - Emergency Protection Panel</title>
+    <link rel="stylesheet" href="swaraguard.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">🛡️</div>
+                <div class="logo-text">
+                    <h1>SwaraGuard</h1>
+                    <p>Emergency Protection Panel</p>
+                </div>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="page1_home.html">Home</a></li>
+                    <li><a href="page2_analysis.html">Analysis</a></li>
+                    <li><a href="page3_protection.html" class="active">Protection</a></li>
+                    <li><a href="live_call_guard.html">Live Call Guard</a></li>
+                </ul>
+            </nav>
+            <div class="user-avatar" id="userAvatar">
+                <div class="avatar" id="userInitials">U</div>
+                <div class="user-name" id="userName">User</div>
+            </div>
+        </header>
+
+        <a href="page1_home.html" class="back-btn">← Back to Home</a>
+
+        <h2 class="page-title">Emergency Protection Panel</h2>
+
+        <!-- Contained danger state — red only for real scam/danger, not page background -->
+        <div class="alert-banner" id="alertBanner">
+            <div class="alert-icon">🚨</div>
+            <div>
+                <div class="alert-title" id="alertTitle">High-Risk Scam Detected</div>
+                <div class="alert-text" id="alertText">OTP shared in call detected. Instant account protection activated.</div>
+            </div>
+        </div>
+
+        <!-- Account status card -->
+        <div class="status-card" id="statusCard">
+            <div class="status-header">
+                <div class="status-icon" id="statusIcon">🔒</div>
+                <div>
+                    <div class="status-title" id="statusTitle">Account is FROZEN for Protection</div>
+                    <div class="status-sub" id="statusSub">Outgoing transactions blocked • Emergency lock active</div>
+                </div>
+            </div>
+
+            <div class="freeze-panel">
+                <h3>⏰ Lock Status</h3>
+                <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 14px;">
+                    Account frozen for 60 minutes due to scam protection trigger.
+                </p>
+
+                <div class="freeze-timer">
+                    <div class="timer-value" id="timeRemaining">00:60:00</div>
+                    <div class="timer-label">Lock expires in</div>
+                </div>
+
+                <div class="account-row">
+                    <span class="account-label">Account status:</span>
+                    <span class="account-value" id="accountNumber">XXXX-1234</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Immediate actions -->
+        <div class="card">
+            <h3>⚡ Immediate Actions</h3>
+            <div class="actions-grid">
+                <a href="tel:1930" class="action-card" onclick="triggerAction('call1930')">
+                    <span class="action-icon">📞</span>
+                    <h4>Call 1930</h4>
+                    <p>Report to cyber crime helpline</p>
+                </a>
+                <div class="action-card" onclick="triggerAction('lockCards')">
+                    <span class="action-icon">🔒</span>
+                    <h4>Lock Cards</h4>
+                    <p>Block debit/credit cards</p>
+                </div>
+                <div class="action-card" onclick="triggerAction('resetPin')">
+                    <span class="action-icon">🔄</span>
+                    <h4>Reset PIN</h4>
+                    <p>Change UPI & net banking PIN</p>
+                </div>
+                <div class="action-card" onclick="triggerAction('unfreeze')">
+                    <span class="action-icon">✅</span>
+                    <h4>Unfreeze</h4>
+                    <p>Unlock via guardian approval</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recommended next steps -->
+        <div class="steps-card">
+            <h3>📋 Recommended Next Steps</h3>
+            <ul class="step-list">
+                <li>
+                    <div class="step-badge">1</div>
+                    <div class="step-content">
+                        <h4>Call 1930 Immediately</h4>
+                        <p>Report the scam to the National Cyber Crime Helpline</p>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-badge">2</div>
+                    <div class="step-content">
+                        <h4>Lock Your Cards</h4>
+                        <p>Use your bank's mobile app to immediately lock all cards</p>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-badge">3</div>
+                    <div class="step-content">
+                        <h4>Reset UPI PIN</h4>
+                        <p>Change your UPI PIN from your bank's official app</p>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-badge">4</div>
+                    <div class="step-content">
+                        <h4>Change Passwords</h4>
+                        <p>Update net banking and bank app passwords immediately</p>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-badge">5</div>
+                    <div class="step-content">
+                        <h4>File Complaint</h4>
+                        <p>Visit cybercrime.gov.in to register a complaint</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Simulation note (contained, emerald) -->
+        <div class="simulation-note">
+            <p><strong>Demo Mode:</strong> This is a simulated protection panel. In production, this would sync with your bank's API for instant fraud protection.</p>
+            <p><strong>⚠️ Important:</strong> No real bank account has been frozen. SwaraGuard is a third-party app and cannot directly freeze bank accounts without an authorized banking integration.</p>
+        </div>
+
+        <footer>
+            <p>SwaraGuard AI — Emergency Protection Panel | Account secured by AI threat detection</p>
+            <p style="font-size: 0.8rem; margin-top: 6px; opacity: 0.7;">
+                For real emergency action, call 1930 (National Cyber Crime Helpline) or visit cybercrime.gov.in.
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        /* Countdown timer — simulated demo lock */
+        let secondsRemaining = 3600;
+        let countdownInterval = null;
+
+        function updateCountdown() {
+            if (secondsRemaining <= 0) {
+                clearInterval(countdownInterval);
+                document.getElementById('timeRemaining').textContent = '00:00:00';
+                document.getElementById('statusIcon').textContent = '✅';
+                document.getElementById('statusTitle').textContent = 'Lock Expired — Account Accessible';
+                document.getElementById('statusSub').textContent = 'Emergency lock has ended. Verify all recent transactions.';
+                return;
+            }
+            const h = Math.floor(secondsRemaining / 3600);
+            const m = Math.floor((secondsRemaining % 3600) / 60);
+            const s = secondsRemaining % 60;
+            document.getElementById('timeRemaining').textContent =
+                `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+            secondsRemaining--;
+        }
+
+        countdownInterval = setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        /* User session */
+        function getUserFromStorage() {
+            try {
+                const stored = localStorage.getItem('swaraguard_user');
+                return stored ? JSON.parse(stored) : null;
+            } catch (e) { return null; }
+        }
+
+        function showUserMenu() {
+            const user = getUserFromStorage();
+            if (user && user.name) {
+                const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+                document.getElementById('userInitials').textContent = initials;
+                document.getElementById('userName').textContent = user.name.split(' ')[0];
+            }
+        }
+
+        function triggerAction(action) {
+            switch (action) {
+                case 'call1930':
+                    window.location.href = 'tel:1930';
+                    break;
+                case 'lockCards':
+                    alert('Cards locked successfully in demo mode.\n\nIn production, this would sync with your bank app.');
+                    break;
+                case 'resetPin':
+                    alert('UPI PIN reset initiated.\n\nOpen your bank app to complete security verification.');
+                    break;
+                case 'unfreeze':
+                    if (confirm('Are you sure you want to unfreeze your account?\n\nThis action is logged and will be verified.')) {
+                        document.getElementById('statusIcon').textContent = '🔓';
+                        document.getElementById('statusTitle').textContent = 'Account UNLOCKED';
+                        document.getElementById('statusSub').textContent = 'Emergency lock lifted. Monitor transactions closely.';
+                        document.getElementById('statusCard').style.borderColor = 'rgba(16, 185, 129, 0.4)';
+                        document.getElementById('statusCard').style.background = 'rgba(16, 185, 129, 0.1)';
+                        document.getElementById('statusIcon').style.background = 'rgba(16, 185, 129, 0.18)';
+                        document.getElementById('statusIcon').style.borderColor = 'rgba(16, 185, 129, 0.45)';
+                        document.getElementById('statusIcon').style.color = '#6ee7b7';
+                        clearInterval(countdownInterval);
+                        alert('Account successfully unfrozen! Previous lock has been lifted.');
+                    }
+                    break;
+                case 'freeze':
+                    alert('Account freeze activated for 15 minutes.\n\nYou can manage freezes in your bank app.');
+                    break;
+                case 'createReport':
+                    alert('Fraud report generated.\n\nThis report can be submitted to cybercrime.gov.in');
+                    break;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            showUserMenu();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwaraGuard — Live Call Guard</title>
+    <link rel="stylesheet" href="swaraguard.css">
+</head>
+<body>
+<div class="container">
+    <header>
+        <div class="logo">
+            <div class="logo-icon">🛡️</div>
+            <div class="logo-text">
+                <h1>SwaraGuard</h1>
+                <p>Live Call Guard</p>
+            </div>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="page1_home.html">Home</a></li>
+                <li><a href="live_call_guard.html" class="active">Live Guard</a></li>
+                <li><a href="page2_analysis.html">Analysis</a></li>
+                <li><a href="page3_protection.html">Protection</a></li>
+            </ul>
+        </nav>
+        <div class="user-avatar" id="userAvatar">
+            <div class="avatar" id="userInitials">U</div>
+            <div class="user-name" id="userName">User</div>
+        </div>
+    </header>
+
+    <!-- Caller identity mode -->
+    <div class="mode-selector">
+        <button class="mode-btn active contact-active" id="contactModeBtn" data-mode="contact">
+            <span>🔒</span><span>Saved Contact (Amma / Family)</span>
+        </button>
+        <button class="mode-btn" id="unknownModeBtn" data-mode="unknown">
+            <span>🛡️</span><span>Unknown Number (+91 XXXXX XXXXX)</span>
+        </button>
+    </div>
+
+    <div class="status-banner privacy" id="statusBanner">
+        <div class="banner-icon" id="bannerIcon">🔒</div>
+        <div>
+            <div class="banner-main" id="bannerMain">TRUSTED CONTACT — NOT MONITORED</div>
+            <div class="banner-sub" id="bannerSub">Microphone is off. SwaraGuard stays asleep for people you already know.</div>
+        </div>
+    </div>
+
+    <!-- Scenario library -->
+    <div class="card">
+        <div class="card-head">
+            <h2>Call Transcript Library</h2>
+            <div class="head-actions">
+                <button class="btn" id="randomizeBtn">🎲 Randomize Call Transcript</button>
+                <button class="btn btn-mic" id="micBtn">🎙️ Live Microphone</button>
+            </div>
+        </div>
+
+        <div class="scenario-group-label safe-label">A · Normal / Safe Unknown-Number Calls — must stay connected</div>
+        <div class="scenario-grid" id="safeGrid"></div>
+
+        <div class="scenario-group-label scam-label">B · High-Risk AI Deepfake &amp; Scam Calls — must auto-block</div>
+        <div class="scenario-grid" id="scamGrid"></div>
+
+        <p class="disclaimer" id="micNote" style="display:none;">
+            Live microphone uses the browser's Web Speech API. Where it is unavailable (or blocked), you can still
+            type what the caller says into the transcript box below and SwaraGuard will score it in real time.
+        </p>
+    </div>
+
+    <!-- Live console -->
+    <div class="call-console" id="callConsole">
+        <div class="console-header">
+            <div class="caller-avatar saved" id="callerAvatar">🔒</div>
+            <div class="caller-meta">
+                <div class="caller-name" id="callerName">No call in progress</div>
+                <div class="caller-number" id="callerNumber">Pick a scenario or start live mic</div>
+            </div>
+            <span class="badge badge-privacy" id="stateBadge">PRIVACY MODE</span>
+        </div>
+
+        <div class="transcript-panel" id="transcriptPanel">
+            <div class="transcript-head">
+                <span>Live Call Transcript</span>
+                <span class="wave idle" id="wave"><i></i><i></i><i></i><i></i><i></i></span>
+            </div>
+            <div id="transcriptBody">
+                <div class="transcript-empty">No audio yet — select a scenario, hit randomize, or start the live microphone.</div>
+            </div>
+        </div>
+
+        <div class="risk-row">
+            <div class="risk-score-block">
+                <span class="risk-num low" id="riskNum">0</span>
+                <span class="risk-denom">/ 100</span>
+            </div>
+            <div class="meter-wrap">
+                <div class="meter-track">
+                    <div class="meter-fill" id="meterFill"></div>
+                    <div class="meter-threshold" title="Auto-block threshold (80)"></div>
+                </div>
+                <div class="meter-labels">
+                    <span>SAFE</span><span>CAUTION</span><span>BLOCK ≥ 80</span>
+                </div>
+            </div>
+        </div>
+        <div class="verdict-line" id="verdictLine"></div>
+
+        <div class="indicator-wrap">
+            <div class="indicator-title">Detection Signals</div>
+            <div class="indicator-list" id="indicatorList">
+                <span class="indicator clear">Awaiting audio…</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Post-scam protection -->
+    <div class="post-scam" id="postScam">
+        <h2>🚨 Call Terminated by SwaraGuard</h2>
+        <p class="ps-sub" id="psSub">Scam call auto-blocked and number added to your blocklist.</p>
+
+        <div class="freeze-box">
+            <div class="freeze-clock" id="freezeClock">15:00</div>
+            <div class="freeze-copy">
+                <strong>15-Minute Simulated Account Hold Active</strong>
+                <span>Outgoing UPI / card transactions are paused in this demo to prevent further loss.</span>
+            </div>
+        </div>
+
+        <div class="ps-actions">
+            <a href="tel:1930" class="btn-emergency btn-1930">📞 Call 1930 — Cybercrime Helpline</a>
+            <button class="btn-emergency btn-reset" id="resetBtn">↺ Reset Simulation</button>
+        </div>
+
+        <div class="ps-steps">
+            <strong>Next Steps</strong>
+            <ul>
+                <li>Open your bank app and freeze your debit / credit card.</li>
+                <li>Change your UPI PIN, net-banking password and MPIN immediately.</li>
+                <li>Call 1930 or report at cybercrime.gov.in if money was already debited.</li>
+            </ul>
+        </div>
+
+        <p class="disclaimer">
+            Simulation only — a third-party app cannot freeze a real bank account. The 15-minute hold and the
+            risk scores shown are demo behaviour, not a live banking action.
+        </p>
+    </div>
+</div>
+
+<!-- Critical 3-second alert -->
+<div class="critical-overlay" id="criticalOverlay">
+    <div class="critical-card">
+        <span class="alert-emoji">🚨</span>
+        <h2>AI SCAM DETECTED — AUTO-BLOCKING CALL</h2>
+        <p class="alert-sub" id="criticalReason">Synthetic voice + high-risk scam tactics detected on an unknown number.</p>
+        <div class="countdown-ring" id="countdownRing">3</div>
+        <div class="countdown-label">Disconnecting in</div>
+        <button class="btn btn-skip" id="skipBtn">Disconnect now</button>
+    </div>
+</div>
+
+<script>
+/* ==========================================================
+   SwaraGuard — Live Call Guard
+   ========================================================== */
+
+const SCENARIOS = [
+    /* ---------- SAFE ---------- */
+    {
+        id: 'family_friend_english',
+        title: "Family on Friend's New Number",
+        lang: 'English',
+        safe: true,
+        caller: 'Amma (via friend’s phone)',
+        number: '+91 98490 11223 — Unsaved',
+        baseScore: 12,
+        transcript: "Hey, my phone battery completely died at the metro station so I'm calling from my friend's new number. Don't worry, I'll reach home in 20 minutes.",
+        signals: []
+    },
+    {
+        id: 'relative_new_sim_te',
+        title: 'Relative Calling from New SIM',
+        lang: 'Telugu-English',
+        safe: true,
+        caller: 'Relative',
+        number: '+91 98490 44556 — Unsaved',
+        baseScore: 10,
+        transcript: "Hello nanna, naa old SIM network pani cheyyatledhu, anduke ee kotha number nundi call chesthunnanu. Evening intiki vasthanu.",
+        signals: []
+    },
+    {
+        id: 'lab_mate_logistics',
+        title: 'College Lab Mate — Printouts',
+        lang: 'English',
+        safe: true,
+        caller: 'Lab Mate',
+        number: '+91 98490 77889 — Unsaved',
+        baseScore: 8,
+        transcript: "Hi, I am standing near the main college gate with your project printouts. Let me know when you come out of the lab.",
+        signals: []
+    },
+    {
+        id: 'clinic_appointment',
+        title: 'Doctor / Appointment Confirmation',
+        lang: 'Hinglish',
+        safe: true,
+        caller: 'City Clinic',
+        number: '+91 98490 99001 — Unsaved',
+        baseScore: 14,
+        transcript: "Hello, City Clinic se bol rahe hain. Aapka kal subah 10 baje ka dental checkup appointment confirm hai, bas time par aa jaiyega.",
+        signals: []
+    },
+
+    /* ---------- SCAM ---------- */
+    {
+        id: 'bank_kyc_otp',
+        title: 'Bank KYC & 6-Digit OTP Scam',
+        lang: 'English',
+        safe: false,
+        caller: 'SBI KYC “Department”',
+        number: '+91 98765 00000 — Unsaved',
+        baseScore: 96,
+        transcript: "Sir, I am calling from SBI KYC verification department. Your account will be suspended in 10 minutes. Tell me the 6-digit OTP sent to your phone right now.",
+        signals: ['Bank impersonation', 'OTP demand', '10-minute panic deadline', 'Synthetic robotic cadence']
+    },
+    {
+        id: 'cloned_family_voice',
+        title: 'AI-Cloned Family Voice Emergency',
+        lang: 'Telugu-English',
+        safe: false,
+        caller: 'Cloned Family Voice',
+        number: '+91 98765 00000 — Unsaved',
+        baseScore: 94,
+        transcript: "Nenu hospital lo emergency lo unnanu, voice koncham marindi anukoku, urgent ga ee number ki 25,000 UPI cheyyi, tarvata matladatha!",
+        signals: ['Cloned-voice acoustic artifacts', 'Medical panic', 'Urgent UPI transfer']
+    },
+    {
+        id: 'digital_arrest_hinglish',
+        title: 'Digital Arrest / Fake Police',
+        lang: 'Hinglish',
+        safe: false,
+        caller: '“Mumbai Cyber Crime Branch”',
+        number: '+91 98765 00000 — Unsaved',
+        baseScore: 98,
+        transcript: "Hum Mumbai Cyber Crime branch se bol rahe hain. Aapke Aadhaar par illegal parcel pakda gaya hai, abhi video call par raho aur verification ke liye UPI transfer karo.",
+        signals: ['Authority intimidation', 'Digital arrest threat', 'Extortion demand', 'Synthetic flat tone']
+    },
+    {
+        id: 'fake_refund_upi_pin',
+        title: 'Fake Refund / UPI PIN Trap',
+        lang: 'English',
+        safe: false,
+        caller: '“Refund Operator”',
+        number: '+91 98765 00000 — Unsaved',
+        baseScore: 92,
+        transcript: "Congratulations, your electricity bill cashback of ₹4,500 is ready. Open your UPI app, tap Approve, and enter your 4-digit UPI PIN to receive the money.",
+        signals: ['Fake cashback lure', 'UPI PIN request', 'TTS-generated voice']
+    }
+];
+
+/* Scam keyword lexicon + safe keyword lexicon for live scoring */
+const SCAM_WORDS = [
+    { w: 'otp', wgt: 30 }, { w: 'one time password', wgt: 30 },
+    { w: 'upi pin', wgt: 34 }, { w: 'pin', wgt: 14 },
+    { w: 'kyc', wgt: 20 }, { w: 'block', wgt: 16 }, { w: 'blocked', wgt: 16 },
+    { w: 'suspend', wgt: 20 }, { w: 'arrest', wgt: 28 },
+    { w: 'urgent', wgt: 14 }, { w: 'immediately', wgt: 12 },
+    { w: 'transfer', wgt: 18 }, { w: 'upi', wgt: 14 },
+    { w: 'hospital', wgt: 12 }, { w: 'emergency', wgt: 16 },
+    { w: 'aadhaar', wgt: 16 }, { w: 'cyber crime', wgt: 20 },
+    { w: 'verification', wgt: 12 }, { w: 'cashback', wgt: 18 },
+    { w: 'approve', wgt: 12 }, { w: 'refund', wgt: 10 },
+    { w: 'lottery', wgt: 22 }, { w: 'prize', wgt: 18 }
+];
+
+const SAFE_WORDS = [
+    'lunch', 'college', 'lab', 'home', 'battery', 'class', 'gate',
+    'printouts', 'appointment', 'clinic', 'checkup', 'metro', 'evening',
+    'friend', 'nanna', 'amma', 'sim', 'network'
+];
+
+/* ---------- state ---------- */
+const state = {
+    mode: 'contact',        // 'contact' | 'unknown'
+    callActive: false,
+    currentScenario: null,
+    recognition: null,
+    listening: false,
+    typedBuffer: '',
+    score: 0,
+    scamChatter: [],        // queued utterances for preset playback
+    playedIdx: 0,
+    timers: [],
+    freezeTimer: null,
+    seenThreats: new Set(),
+    blocked: false
+};
+
+/* ---------- element refs ---------- */
+const el = {
+    contactBtn: document.getElementById('contactModeBtn'),
+    unknownBtn: document.getElementById('unknownModeBtn'),
+    statusBanner: document.getElementById('statusBanner'),
+    bannerIcon: document.getElementById('bannerIcon'),
+    bannerMain: document.getElementById('bannerMain'),
+    bannerSub: document.getElementById('bannerSub'),
+    safeGrid: document.getElementById('safeGrid'),
+    scamGrid: document.getElementById('scamGrid'),
+    randomizeBtn: document.getElementById('randomizeBtn'),
+    micBtn: document.getElementById('micBtn'),
+    micNote: document.getElementById('micNote'),
+    console: document.getElementById('callConsole'),
+    callerAvatar: document.getElementById('callerAvatar'),
+    callerName: document.getElementById('callerName'),
+    callerNumber: document.getElementById('callerNumber'),
+    stateBadge: document.getElementById('stateBadge'),
+    transcriptBody: document.getElementById('transcriptBody'),
+    wave: document.getElementById('wave'),
+    riskNum: document.getElementById('riskNum'),
+    meterFill: document.getElementById('meterFill'),
+    verdictLine: document.getElementById('verdictLine'),
+    indicatorList: document.getElementById('indicatorList'),
+    criticalOverlay: document.getElementById('criticalOverlay'),
+    criticalReason: document.getElementById('criticalReason'),
+    countdownRing: document.getElementById('countdownRing'),
+    skipBtn: document.getElementById('skipBtn'),
+    postScam: document.getElementById('postScam'),
+    psSub: document.getElementById('psSub'),
+    freezeClock: document.getElementById('freezeClock'),
+    resetBtn: document.getElementById('resetBtn')
+};
+
+/* ==========================================================
+   Scenario grid rendering
+   ========================================================== */
+function renderScenarioGrids() {
+    el.safeGrid.innerHTML = '';
+    el.scamGrid.innerHTML = '';
+
+    SCENARIOS.forEach(s => {
+        const btn = document.createElement('button');
+        btn.className = 'scenario-btn ' + (s.safe ? 'safe' : 'scam');
+        btn.dataset.id = s.id;
+        btn.innerHTML = `
+            <span class="scenario-title">${s.title}</span>
+            <span class="scenario-meta">
+                <span class="pill ${s.safe ? 'pill-safe' : 'pill-scam'}">${s.safe ? 'Safe' : 'Scam'}</span>
+                <span class="pill pill-lang">${s.lang}</span>
+            </span>
+        `;
+        btn.addEventListener('click', () => {
+            if (state.mode !== 'unknown') setMode('unknown');
+            startScenario(s);
+        });
+        (s.safe ? el.safeGrid : el.scamGrid).appendChild(btn);
+    });
+}
+
+/* ==========================================================
+   Mode switching — the core caller filter
+   ========================================================== */
+function setMode(mode) {
+    state.mode = mode;
+    localStorage.setItem('swaraguard_caller_mode', mode);
+
+    el.contactBtn.classList.toggle('active', mode === 'contact');
+    el.contactBtn.classList.toggle('contact-active', mode === 'contact');
+    el.unknownBtn.classList.toggle('active', mode === 'unknown');
+
+    if (mode === 'contact') {
+        stopListening();
+        resetConsole();
+        el.statusBanner.className = 'status-banner privacy';
+        el.bannerIcon.textContent = '🔒';
+        el.bannerMain.textContent = 'TRUSTED CONTACT — NOT MONITORED';
+        el.bannerSub.textContent = 'Microphone is off. SwaraGuard stays asleep for people you already know.';
+        el.micBtn.disabled = true;
+        el.callerAvatar.className = 'caller-avatar saved';
+        el.callerAvatar.textContent = '🔒';
+        el.callerName.textContent = 'Amma / Family';
+        el.callerNumber.textContent = 'Saved contact — mic disabled';
+        el.stateBadge.className = 'badge badge-privacy';
+        el.stateBadge.textContent = 'PRIVACY MODE';
+        el.transcriptBody.innerHTML =
+            '<div class="transcript-empty">🔒 Saved contacts are never recorded or analysed. Switch to an unknown number to activate the shield.</div>';
+    } else {
+        el.statusBanner.className = 'status-banner shield';
+        el.bannerIcon.textContent = '🛡️';
+        el.bannerMain.textContent = 'SHIELD ACTIVE — SCREENING UNKNOWN CALLER';
+        el.bannerSub.textContent = 'Live speech is scored for deepfake artifacts and scam tactics. Safe calls stay connected.';
+        el.micBtn.disabled = false;
+        el.callerAvatar.className = 'caller-avatar unknown';
+        el.callerAvatar.textContent = '🛡️';
+        el.callerName.textContent = 'Unknown Caller';
+        el.callerNumber.textContent = '+91 XXXXX XXXXX — Unsaved';
+        el.stateBadge.className = 'badge badge-shield';
+        el.stateBadge.textContent = 'SHIELD ACTIVE';
+        el.transcriptBody.innerHTML =
+            '<div class="transcript-empty">Shield armed. Pick a transcript, hit randomize, or start the live microphone.</div>';
+    }
+}
+
+/* ==========================================================
+   Console + risk rendering
+   ========================================================== */
+function resetConsole() {
+    clearAllTimers();
+    state.callActive = false;
+    state.currentScenario = null;
+    state.score = 0;
+    state.scamChatter = [];
+    state.playedIdx = 0;
+    state.seenThreats.clear();
+    state.blocked = false;
+
+    el.console.className = 'call-console';
+    el.riskNum.textContent = '0';
+    el.riskNum.className = 'risk-num low';
+    el.meterFill.style.width = '0%';
+    el.meterFill.style.background = 'var(--emerald)';
+    el.verdictLine.textContent = '';
+    el.verdictLine.style.color = 'var(--text-muted)';
+    el.indicatorList.innerHTML = '<span class="indicator clear">Awaiting audio…</span>';
+    el.wave.classList.add('idle');
+    el.postScam.classList.remove('visible');
+    hideCritical();
+    if (state.freezeTimer) { clearInterval(state.freezeTimer); state.freezeTimer = null; }
+    document.querySelectorAll('.scenario-btn.selected').forEach(b => b.classList.remove('selected'));
+}
+
+function setScore(score) {
+    state.score = Math.max(0, Math.min(100, Math.round(score)));
+    const s = state.score;
+
+    el.riskNum.textContent = s;
+    const cls = s >= 80 ? 'high' : s >= 40 ? 'mid' : 'low';
+    el.riskNum.className = 'risk-num ' + cls;
+
+    el.meterFill.style.width = s + '%';
+    el.meterFill.style.background =
+        s >= 80 ? 'linear-gradient(90deg, #f59e0b, #ef4444)' :
+        s >= 40 ? 'linear-gradient(90deg, #10b981, #f59e0b)' :
+                  'linear-gradient(90deg, #059669, #10b981)';
+
+    if (state.mode === 'unknown' && state.callActive) {
+        if (s >= 80) {
+            el.verdictLine.textContent = 'HIGH RISK — auto-block threshold reached';
+            el.verdictLine.style.color = 'var(--error)';
+        } else if (s >= 40) {
+            el.verdictLine.textContent = 'CAUTION — suspicious signals building';
+            el.verdictLine.style.color = 'var(--warning)';
+        } else {
+            el.verdictLine.textContent = 'SAFE so far — no scam signals detected';
+            el.verdictLine.style.color = 'var(--emerald)';
+        }
+    }
+}
+
+function renderIndicators(list) {
+    if (!list.length) {
+        el.indicatorList.innerHTML = '<span class="indicator clear">No threat signals — natural human speech</span>';
+        return;
+    }
+    el.indicatorList.innerHTML = list.map(sig => {
+        const cls = sig.kind === 'caution' ? 'caution' : 'threat';
+        return `<span class="indicator ${cls}">${sig.label}</span>`;
+    }).join('');
+}
+
+/* ==========================================================
+   Scenario playback — types the transcript out line by line
+   ========================================================== */
+function startScenario(scenario) {
+    resetConsole();
+    state.currentScenario = scenario;
+    state.callActive = true;
+
+    document.querySelectorAll('.scenario-btn').forEach(b =>
+        b.classList.toggle('selected', b.dataset.id === scenario.id));
+
+    el.callerAvatar.className = 'caller-avatar ' + (scenario.safe ? 'unknown' : 'scam');
+    el.callerAvatar.textContent = scenario.safe ? '🛡️' : '⚠️';
+    el.callerName.textContent = scenario.caller;
+    el.callerNumber.textContent = scenario.number;
+    el.stateBadge.className = 'badge ' + (scenario.safe ? 'badge-shield' : 'badge-scam');
+    el.stateBadge.textContent = scenario.safe ? 'SHIELD ACTIVE' : 'SHIELD ACTIVE';
+    el.transcriptBody.innerHTML = '';
+    el.wave.classList.remove('idle');
+
+    const lines = splitTranscript(scenario.transcript);
+    let i = 0;
+
+    const step = () => {
+        if (!state.callActive) return;
+        if (i >= lines.length) {
+            finishScenario(scenario);
+            return;
+        }
+        appendLine(lines[i], scenario);
+        i++;
+        state.timers.push(setTimeout(step, 850 + Math.random() * 400));
+    };
+
+    // kick off
+    state.timers.push(setTimeout(step, 250));
+}
+
+function splitTranscript(text) {
+    // Break into sentence-ish chunks so it reads like a live call
+    const raw = text.split(/(?<=[.!?])\s+/);
+    const out = [];
+    raw.forEach(chunk => {
+        if (chunk.length <= 90) { out.push(chunk.trim()); return; }
+        // split long chunks on commas
+        let buf = '';
+        chunk.split(/,\s*/).forEach((part, idx, arr) => {
+            const candidate = idx < arr.length - 1 ? part + ',' : part;
+            if ((buf + ' ' + candidate).trim().length > 90) { out.push(buf.trim()); buf = candidate; }
+            else buf = (buf + ' ' + candidate).trim();
+        });
+        if (buf.trim()) out.push(buf.trim());
+    });
+    return out.filter(Boolean);
+}
+
+function appendLine(text, scenario) {
+    const div = document.createElement('div');
+    div.className = 'transcript-line';
+    div.innerHTML = highlightText(text);
+    el.transcriptBody.appendChild(div);
+    el.transcriptBody.scrollTop = el.transcriptBody.scrollHeight;
+
+    // Progressive scoring — blend base score with detected keywords
+    const hits = scoreText(text);
+    const target = Math.min(100, scenario.baseScore * 0.35 + hits.weight * 0.75 + state.score * 0.15);
+    animateScoreTo(target);
+
+    hits.matches.forEach(m => state.seenThreats.add(m.label));
+
+    const indicators = [];
+    state.seenThreats.forEach(label => {
+        indicators.push({ label, kind: label === 'Urgency pressure' ? 'caution' : 'threat' });
+    });
+    if (scenario.signals) {
+        scenario.signals.forEach(sig => indicators.push({ label: sig, kind: 'threat' }));
+    }
+    // de-dupe
+    const unique = [];
+    const icache = {};
+    indicators.forEach(sig => {
+        if (!icache[sig.label]) { icache[sig.label] = 1; unique.push(sig); }
+    });
+    renderIndicators(unique);
+}
+
+function finishScenario(scenario) {
+    state.callActive = false;
+    el.wave.classList.add('idle');
+
+    if (scenario.safe) {
+        animateScoreTo(scenario.baseScore);
+        el.stateBadge.className = 'badge badge-safe';
+        el.stateBadge.textContent = 'UNKNOWN NUMBER VERIFIED SAFE — CALL ALLOWED';
+        el.console.className = 'call-console state-safe';
+        el.verdictLine.textContent = 'Call kept connected — genuine human conversation, no scam signals.';
+        el.verdictLine.style.color = 'var(--emerald)';
+        const safeSignals = [];
+        (scenario.signals || []).forEach(s => safeSignals.push({ label: s, kind: 'clear' }));
+        el.indicatorList.innerHTML =
+            '<span class="indicator clear">Natural speech cadence</span>' +
+            '<span class="indicator clear">No OTP / money pressure</span>' +
+            '<span class="indicator clear">Unknown number verified safe</span>';
+    } else {
+        animateScoreTo(scenario.baseScore);
+        renderIndicators(
+            (scenario.signals || []).map(s => ({ label: s, kind: 'threat' }))
+        );
+        el.console.className = 'call-console state-scam';
+        triggerAutoBlock(scenario);
+    }
+}
+
+/* Animate score smoothly toward target */
+let scoreAnim = null;
+function animateScoreTo(target) {
+    if (scoreAnim) clearInterval(scoreAnim);
+    const start = state.score;
+    const delta = target - start;
+    if (Math.abs(delta) < 1) { setScore(target); return; }
+    let ticks = 0;
+    const total = 18;
+    scoreAnim = setInterval(() => {
+        ticks++;
+        const eased = start + delta * (ticks / total);
+        setScore(eased);
+        if (ticks >= total) { clearInterval(scoreAnim); scoreAnim = null; setScore(target); }
+    }, 30);
+}
+
+/* ==========================================================
+   Keyword scoring for live text
+   ========================================================== */
+function scoreText(text) {
+    const lower = text.toLowerCase();
+    let weight = 0;
+    const matched = [];
+    SCAM_WORDS.forEach(({ w, wgt }) => {
+        if (lower.includes(w)) {
+            weight += wgt;
+            matched.push({ label: canonicalLabel(w), kind: 'threat' });
+        }
+    });
+    // Soften with safe context words
+    let safeHits = 0;
+    SAFE_WORDS.forEach(w => { if (lower.includes(w)) safeHits++; });
+    weight = Math.max(0, weight - safeHits * 4);
+    return { weight, matches: dedupeMatches(matched) };
+}
+
+function canonicalLabel(w) {
+    const map = {
+        'otp': 'OTP request', 'one time password': 'OTP request',
+        'upi pin': 'UPI PIN request', 'pin': 'PIN request', 'upi': 'UPI mentioned',
+        'kyc': 'KYC pressure', 'block': 'Account blocking threat', 'blocked': 'Account blocking threat',
+        'suspend': 'Suspension threat', 'arrest': 'Arrest threat',
+        'urgent': 'Urgency pressure', 'immediately': 'Urgency pressure',
+        'transfer': 'Money transfer demand', 'hospital': 'Medical panic',
+        'emergency': 'Emergency pressure', 'aadhaar': 'Aadhaar mention',
+        'cyber crime': 'Authority impersonation', 'verification': 'Verification request',
+        'cashback': 'Cashback lure', 'approve': 'Approval request',
+        'refund': 'Refund lure', 'lottery': 'Lottery scam', 'prize': 'Prize lure'
+    };
+    return map[w] || w;
+}
+
+function dedupeMatches(list) {
+    const seen = {};
+    const out = [];
+    list.forEach(m => { if (!seen[m.label]) { seen[m.label] = 1; out.push(m); } });
+    return out;
+}
+
+/* Highlight scam keywords inside a transcript line */
+function highlightText(text) {
+    let safe = escapeHtml(text);
+    // Build regex of all scam words, longest first
+    const words = SCAM_WORDS.map(s => s.w).sort((a, b) => b.length - a.length);
+    const re = new RegExp('(' + words.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')', 'gi');
+    return safe.replace(re, m => `<span class="hit">${m}</span>`);
+}
+
+function escapeHtml(s) {
+    return s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+/* ==========================================================
+   Critical alert → auto-block
+   ========================================================== */
+function triggerAutoBlock(scenario) {
+    if (state.blocked) return;
+    state.blocked = true;
+
+    const reason = (scenario.signals && scenario.signals[0]) || 'Scam tactics detected';
+    el.criticalReason.textContent = reason + ' on an unsaved number.';
+    el.criticalOverlay.classList.add('visible');
+
+    let count = 3;
+    el.countdownRing.textContent = count;
+
+    const tick = setInterval(() => {
+        count--;
+        el.countdownRing.textContent = count;
+        if (count <= 0) {
+            clearInterval(tick);
+            completeBlock(scenario);
+        }
+    }, 1000);
+    state.timers.push(tick);
+}
+
+function completeBlock(scenario) {
+    hideCritical();
+    el.stateBadge.className = 'badge badge-scam';
+    el.stateBadge.textContent = 'CALL TERMINATED BY SWARAGUARD';
+    el.verdictLine.textContent = '🚨 Call terminated by SwaraGuard. Number blocked.';
+    el.verdictLine.style.color = 'var(--error)';
+    el.postScam.classList.add('visible');
+    el.psSub.textContent =
+        `AI scam blocked — risk score ${state.score}/100. ${scenario.caller} (${scenario.number.split(' —')[0]}) added to your blocklist.`;
+    startFreezeCountdown(15);
+    el.postScam.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function hideCritical() {
+    el.criticalOverlay.classList.remove('visible');
+}
+
+function startFreezeCountdown(minutes) {
+    if (state.freezeTimer) clearInterval(state.freezeTimer);
+    let total = minutes * 60;
+    const paint = () => {
+        const m = Math.floor(total / 60);
+        const s = total % 60;
+        el.freezeClock.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    };
+    paint();
+    state.freezeTimer = setInterval(() => {
+        total--;
+        if (total < 0) { clearInterval(state.freezeTimer); state.freezeTimer = null; el.freezeClock.textContent = 'HOLD EXPIRED'; return; }
+        paint();
+    }, 1000);
+}
+
+/* ==========================================================
+   Live microphone support
+   ========================================================== */
+function startListening() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) {
+        el.micNote.style.display = 'block';
+        el.micBtn.classList.remove('recording');
+        el.micBtn.textContent = '🎙️ Live Microphone (unavailable)';
+        enableTypedFallback();
+        return;
+    }
+
+    if (state.mode !== 'unknown') setMode('unknown');
+    resetConsole();
+    state.callActive = true;
+    el.callerAvatar.className = 'caller-avatar unknown';
+    el.callerAvatar.textContent = '🎙️';
+    el.callerName.textContent = 'Live Microphone';
+    el.callerNumber.textContent = '+91 XXXXX XXXXX — Unsaved';
+    el.stateBadge.className = 'badge badge-shield';
+    el.stateBadge.textContent = 'LISTENING';
+    el.transcriptBody.innerHTML = '';
+    el.wave.classList.remove('idle');
+
+    const rec = new SR();
+    rec.continuous = true;
+    rec.interimResults = true;
+    rec.lang = 'en-IN';
+
+    let interimEl = null;
+
+    rec.onresult = (event) => {
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+            const res = event.results[i];
+            const txt = res[0].transcript.trim();
+            if (!txt) continue;
+
+            if (res.isFinal) {
+                if (interimEl) { interimEl.remove(); interimEl = null; }
+                handleLiveUtterance(txt);
+            } else {
+                if (!interimEl) {
+                    interimEl = document.createElement('div');
+                    interimEl.className = 'transcript-line';
+                    interimEl.style.opacity = '0.55';
+                    el.transcriptBody.appendChild(interimEl);
+                }
+                interimEl.innerHTML = escapeHtml(txt) + ' …';
+                el.transcriptBody.scrollTop = el.transcriptBody.scrollHeight;
+            }
+        }
+    };
+
+    rec.onerror = (e) => {
+        if (e.error === 'not-allowed' || e.error === 'service-not-allowed') {
+            el.micNote.style.display = 'block';
+            el.micNote.textContent = 'Microphone permission was blocked. Type what the caller says below and SwaraGuard will score it live.';
+            enableTypedFallback();
+        }
+    };
+
+    rec.onend = () => {
+        if (state.listening) {
+            // auto-restart for continuous listening (Chrome ends after silence)
+            try { rec.start(); } catch (_) {}
+        }
+    };
+
+    try {
+        rec.start();
+        state.recognition = rec;
+        state.listening = true;
+        el.micBtn.classList.add('recording');
+        el.micBtn.innerHTML = '⏹️ Stop Microphone';
+    } catch (err) {
+        el.micNote.style.display = 'block';
+        enableTypedFallback();
+    }
+}
+
+function stopListening() {
+    state.listening = false;
+    if (state.recognition) {
+        try { state.recognition.stop(); } catch (_) {}
+        try { state.recognition.abort(); } catch (_) {}
+        state.recognition = null;
+    }
+    el.micBtn.classList.remove('recording');
+    el.micBtn.innerHTML = '🎙️ Live Microphone';
+}
+
+function handleLiveUtterance(text) {
+    const div = document.createElement('div');
+    div.className = 'transcript-line';
+    div.innerHTML = highlightText(text);
+    el.transcriptBody.appendChild(div);
+    el.transcriptBody.scrollTop = el.transcriptBody.scrollHeight;
+
+    const hits = scoreText(text);
+    const target = Math.min(100, state.score + hits.weight * 0.9 - 1);
+    animateScoreTo(target);
+
+    hits.matches.forEach(m => state.seenThreats.add(m.label));
+    const inds = [];
+    state.seenThreats.forEach(label => inds.push({ label, kind: label === 'Urgency pressure' ? 'caution' : 'threat' }));
+    if (inds.length) renderIndicators(inds);
+
+    if (state.score >= 80 && !state.blocked) {
+        const pseudo = {
+            caller: 'Live Caller',
+            number: '+91 XXXXX XXXXX — Unsaved',
+            signals: Array.from(state.seenThreats)
+        };
+        triggerAutoBlock(pseudo);
+    }
+
+    // If verified safe over several utterances with no hits, show safe badge
+    if (!state.blocked && state.score < 40) {
+        el.stateBadge.className = 'badge badge-safe';
+        el.stateBadge.textContent = 'UNKNOWN NUMBER VERIFIED SAFE — CALL ALLOWED';
+        el.console.className = 'call-console state-safe';
+    } else if (!state.blocked) {
+        el.stateBadge.className = 'badge badge-shield';
+        el.stateBadge.textContent = 'SHIELD ACTIVE — EVALUATING';
+        el.console.className = 'call-console';
+    }
+}
+
+/* Typed fallback when Web Speech API unavailable */
+function enableTypedFallback() {
+    if (document.getElementById('typedInput')) return;
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;';
+    wrap.innerHTML = `
+        <input id="typedInput" type="text" placeholder="Type what the caller says (e.g. 'please share the OTP')"
+               style="flex:1;min-width:220px;background:#0a0f1c;border:1px solid rgba(148,163,184,0.25);
+                      color:#e2e8f0;border-radius:10px;padding:12px 14px;font-size:0.9rem;font-family:inherit;">
+        <button id="typedSend" class="btn btn-accent" type="button">Score it</button>
+    `;
+    el.console.appendChild(wrap);
+    const input = document.getElementById('typedInput');
+    const send = document.getElementById('typedSend');
+    const submit = () => {
+        const v = input.value.trim();
+        if (!v) return;
+        handleLiveUtterance(v);
+        input.value = '';
+        input.focus();
+    };
+    send.addEventListener('click', submit);
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') submit(); });
+    input.focus();
+}
+
+/* ==========================================================
+   Randomize
+   ========================================================== */
+function randomize() {
+    if (state.mode !== 'unknown') setMode('unknown');
+    const pick = SCENARIOS[Math.floor(Math.random() * SCENARIOS.length)];
+    startScenario(pick);
+}
+
+/* ==========================================================
+   Wiring
+   ========================================================== */
+el.contactBtn.addEventListener('click', () => setMode('contact'));
+el.unknownBtn.addEventListener('click', () => setMode('unknown'));
+
+el.micBtn.addEventListener('click', () => {
+    if (state.listening) {
+        stopListening();
+        state.callActive = false;
+        el.wave.classList.add('idle');
+        el.stateBadge.className = 'badge badge-shield';
+        el.stateBadge.textContent = 'SHIELD ACTIVE — MIC OFF';
+    } else {
+        startListening();
+    }
+});
+
+el.randomizeBtn.addEventListener('click', randomize);
+el.skipBtn.addEventListener('click', () => {
+    clearAllTimers();
+    if (state.currentScenario) completeBlock(state.currentScenario);
+    else hideCritical();
+});
+el.resetBtn.addEventListener('click', () => {
+    resetConsole();
+    setMode(state.mode);
+});
+
+function clearAllTimers() {
+    state.timers.forEach(t => { clearTimeout(t); clearInterval(t); });
+    state.timers = [];
+}
+
+function showUserMenu() {
+    const user = getUserFromStorage();
+    if (user && user.name) {
+        const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+        document.getElementById('userInitials').textContent = initials;
+        document.getElementById('userName').textContent = user.name.split(' ')[0];
+    }
+}
+
+function getUserFromStorage() {
+    try {
+        const stored = localStorage.getItem('swaraguard_user');
+        return stored ? JSON.parse(stored) : null;
+    } catch (e) { return null; }
+}
+
+/* Boot */
+renderScenarioGrids();
+const savedMode = localStorage.getItem('swaraguard_caller_mode') || 'contact';
+setMode(savedMode === 'unknown' ? 'unknown' : 'contact');
+showUserMenu();
+</script>
+</body>
+</html>

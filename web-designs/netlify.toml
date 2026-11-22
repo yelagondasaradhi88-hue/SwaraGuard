@@ -1,0 +1,39 @@
+[build]
+  publish = "."
+  command = ""
+
+[[redirects]]
+  from = "/login"
+  to = "/login.html"
+  status = 200
+
+[[redirects]]
+  from = "/login.html"
+  to = "/login.html"
+  status = 200
+
+[[redirects]]
+  from = "/page1"
+  to = "/page1_home.html"
+  status = 200
+
+[[redirects]]
+  from = "/page2"
+  to = "/page2_analysis.html"
+  status = 200
+
+[[redirects]]
+  from = "/page3"
+  to = "/page3_protection.html"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/page1_home.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"

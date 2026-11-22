@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary brand (Blue/Teal scheme) -->
+    <color name="primary">#0ea5e9</color>
+    <color name="primaryContainer">#e0f2fe</color>
+    <color name="onPrimary">#0f172a</color>
+
+    <!-- Secondary (Teal accent) -->
+    <color name="secondary">#0d9488</color>
+    <color name="secondaryContainer">#ccfbf2</color>
+    <color name="onSecondary">#ffffff</color>
+
+    <!-- Risk Level Colors -->
+    <color name="risk_low">#22c55e</color>
+    <color name="risk_medium">#f59e0b</color>
+    <color name="risk_high">#ef4444</color>
+
+    <!-- Error/Danger -->
+    <color name="error">#dc2626</color>
+    <color name="onError">#ffffff</color>
+    <color name="errorContainer">#fef2f2</color>
+
+    <!-- Surface colors -->
+    <color name="surface">#0f172a</color>
+    <color name="onSurface">#f8fafc</color>
+    <color name="onSurfaceVariant">#94a3b8</color>
+    <color name="surfaceVariant">#1e293b</color>
+
+    <!-- Neutral tones -->
+    <color name="neutral">#94a3b8</color>
+    <color name="neutralContainer">#f1f5f9</color>
+    <color name="onNeutral">#0f172a</color>
+</resources>
